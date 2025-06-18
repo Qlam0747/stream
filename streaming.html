@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlueV Live - Đang phát trực tiếp</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+      color: #ffffff;
+      line-height: 1.6;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .header {
+      background: rgba(15, 15, 35, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-left i {
+      font-size: 1.75rem;
+      background: linear-gradient(45deg, #ff6b6b 0%, #ee5a24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(45deg, #ff6b6b 0%, #ee5a24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .live-indicator {
+      background: linear-gradient(45deg, #ff4757, #ff3742);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      animation: pulse 2s infinite;
+      margin-left: 1rem;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .viewer-count {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .viewer-count i {
+      color: #ff6b6b;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .header-actions i, .header-actions a {
+      font-size: 1.25rem;
+      padding: 0.5rem;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+    }
+
+    .header-actions i:hover, .header-actions a:hover {
+      background: rgba(255, 107, 107, 0.2);
+      color: #ff6b6b;
+      transform: scale(1.1);
+    }
+
+    /* Main Layout */
+    .main-container {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      height: calc(100vh - 80px);
+      gap: 0;
+    }
+
+    /* Video Section */
+    .video-section {
+      display: flex;
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .video-player {
+      flex: 1;
+      background: linear-gradient(45deg, #2d3748, #4a5568);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        45deg,
+        rgba(255, 107, 107, 0.1),
+        rgba(238, 90, 36, 0.1),
+        rgba(255, 107, 107, 0.1)
+      );
+      animation: liveGlow 3s ease-in-out infinite alternate;
+    }
+
+    .video-placeholder {
+      text-align: center;
+      z-index: 2;
+    }
+
+    .video-placeholder i {
+      font-size: 4rem;
+      color: rgba(255, 255, 255, 0.3);
+      margin-bottom: 1rem;
+    }
+
+    .video-placeholder p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 1.2rem;
+    }
+
+    .video-controls {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      padding: 1rem;
+      border-radius: 12px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 3;
+    }
+
+    .video-player:hover .video-controls {
+      opacity: 1;
+    }
+
+    .control-left, .control-right {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .control-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      padding: 0.5rem;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .control-btn:hover {
+      background: rgba(255, 107, 107, 0.3);
+    }
+
+    /* Video Info */
+    .video-info {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1.5rem;
+    }
+
+    .stream-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #ffffff;
+    }
+
+    .streamer-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .streamer-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .streamer-details h4 {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .streamer-details p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+    }
+
+    .follow-btn {
+      background: linear-gradient(45deg, #ff6b6b 0%, #ee5a24 100%);
+      color: white;
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-left: auto;
+    }
+
+    .follow-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+    }
+
+    .stream-stats {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .stat-item i {
+      color: #ff6b6b;
+    }
+
+    .stream-description {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      padding: 0.75rem 1rem;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .action-btn:hover {
+      background: rgba(255, 107, 107, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .action-btn.liked {
+      background: rgba(255, 107, 107, 0.3);
+      color: #ff6b6b;
+    }
+
+    /* Chat Section */
+    .chat-section {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-header h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .chat-settings {
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .chat-settings:hover {
+      color: #ff6b6b;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .chat-message {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      animation: slideInRight 0.3s ease;
+    }
+
+    .chat-message:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .message-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+
+    .message-content {
+      flex: 1;
+    }
+
+    .message-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .message-username {
+      font-weight: 600;
+      color: #ffffff;
+      font-size: 0.9rem;
+    }
+
+    .message-time {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .message-text {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .super-chat {
+      background: linear-gradient(45deg, #ffd700, #ffed4e);
+      color: #333;
+      border: 2px solid #ffd700;
+    }
+
+    .super-chat .message-username {
+      color: #333;
+    }
+
+    .super-chat .message-text {
+      color: #333;
+      font-weight: 600;
+    }
+
+    .chat-input {
+      padding: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .input-container {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .chat-input input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      padding: 0.75rem 1rem;
+      color: white;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .chat-input input:focus {
+      border-color: #ff6b6b;
+      box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .chat-input input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .send-btn {
+      background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+      border: none;
+      color: white;
+      padding: 0.75rem;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .send-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    .emoji-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      padding: 0.75rem;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .emoji-btn:hover {
+      background: rgba(255, 107, 107, 0.2);
+      color: #ff6b6b;
+    }
+
+    /* Animations */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    @keyframes liveGlow {
+      0% { opacity: 0.3; }
+      100% { opacity: 0.1; }
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Scrollbar */
+    .chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chat-messages::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: rgba(255, 107, 107, 0.5);
+      border-radius: 3px;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 107, 107, 0.7);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .main-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto;
+      }
+
+      .chat-section {
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        max-height: 300px;
+      }
+
+      .header {
+        padding: 1rem;
+      }
+
+      .stream-stats {
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .action-buttons {
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header-right {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .viewer-count {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.75rem;
+      }
+
+      .video-info {
+        padding: 1rem;
+      }
+
+      .streamer-info {
+        flex-wrap: wrap;
+      }
+    }
+
+    .header-left a:hover {
+      color: #ff6b6b;
+      transform: translateX(-3px);
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <a href="main.html" style="text-decoration: none; color: rgba(255, 255, 255, 0.8); margin-right: 1rem; transition: all 0.3s ease;" title="Quay lại trang chủ">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <i class="fas fa-broadcast-tower"></i>
+      <span class="logo">BlueV Live</span>
+      <span class="live-indicator">🔴 LIVE</span>
+    </div>
+    <div class="header-right">
+      <div class="viewer-count">
+        <i class="fas fa-eye"></i>
+        <span id="viewerCount">12,847</span>
+      </div>
+      <div class="header-actions">
+        <a href="main.html" title="Trang chủ"><i class="fas fa-home"></i></a>
+        <a href="channel.html" title="Kênh"><i class="fas fa-play"></i></a>
+        <a href="stream.html" title="Livestream"><i class="fas fa-video"></i></a>
+        <i class="fas fa-share" title="Chia sẻ"></i>
+        <i class="fas fa-cog" title="Cài đặt"></i>
+        <i class="fas fa-expand" title="Toàn màn hình"></i>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <div class="video-section">
+      <div class="video-player">
+        <div class="video-overlay"></div>
+        <div class="video-placeholder">
+          <i class="fas fa-video"></i>
+          <p>Stream đang phát trực tiếp...</p>
+        </div>
+        <div class="video-controls">
+          <div class="control-left">
+            <button class="control-btn"><i class="fas fa-play"></i></button>
+            <button class="control-btn"><i class="fas fa-volume-up"></i></button>
+          </div>
+          <div class="control-right">
+            <button class="control-btn"><i class="fas fa-cog"></i></button>
+            <button class="control-btn"><i class="fas fa-expand"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="video-info">
+        <h1 class="stream-title">🎮 Thử thách game mới cực hot - Cùng trò chuyện nhé!</h1>
+        
+        <div class="streamer-info">
+          <div class="streamer-avatar">GD</div>
+          <div class="streamer-details">
+            <h4>Gaming Đỉnh</h4>
+            <p>234K người theo dõi • Đang phát trực tiếp 2h 15m</p>
+          </div>
+          <button class="follow-btn">Theo dõi</button>
+        </div>
+
+        <div class="stream-stats">
+          <div class="stat-item">
+            <i class="fas fa-eye"></i>
+            <span id="liveViews">12,847 đang xem</span>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-thumbs-up"></i>
+            <span id="likesCount">1,256</span>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-comments"></i>
+            <span id="commentsCount">892 bình luận</span>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-gift"></i>
+            <span>45 quà tặng</span>
+          </div>
+        </div>
+
+        <div class="stream-description">
+          Chào mọi người! Hôm nay mình sẽ thử thách game mới cực hot này. Hãy cùng trò chuyện trong chat và đừng quên ấn Like + Subscribe để ủng hộ mình nhé! 🎮✨
+        </div>
+
+        <div class="action-buttons">
+          <button class="action-btn" id="likeBtn">
+            <i class="fas fa-thumbs-up"></i>
+            <span>Thích</span>
+          </button>
+          <button class="action-btn" id="dislikeBtn">
+            <i class="fas fa-thumbs-down"></i>
+            <span>Không thích</span>
+          </button>
+          <button class="action-btn">
+            <i class="fas fa-share"></i>
+            <span>Chia sẻ</span>
+          </button>
+          <button class="action-btn">
+            <i class="fas fa-gift"></i>
+            <span>Tặng quà</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-section">
+      <div class="chat-header">
+        <h3>💬 Chat trực tiếp</h3>
+        <i class="fas fa-ellipsis-v chat-settings"></i>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-message super-chat">
+          <div class="message-avatar">VIP</div>
+          <div class="message-content">
+            <div class="message-header">
+              <span class="message-username">Super Fan</span>
+              <span class="message-time">2 phút trước</span>
+            </div>
+            <div class="message-text">💰 Donate 100k: Chúc bạn stream vui vẻ! 🎉</div>
+          </div>
+        </div>
+
+        <div class="chat-message">
+          <div class="message-avatar">M</div>
+          <div class="message-content">
+            <div class="message-header">
+              <span class="message-username">MinGamer123</span>
+              <span class="message-time">3 phút trước</span>
+            </div>
+            <div class="message-text">Game này hay quá! Mình cũng đang chơi 😍</div>
+          </div>
+        </div>
+
+        <div class="chat-message">
+          <div class="message-avatar">T</div>
+          <div class="message-content">
+            <div class="message-header">
+              <span class="message-username">TechLover</span>
+              <span class="message-time">5 phút trước</span>
+            </div>
+            <div class="message-text">Chơi game gì thế bạn? Trông có vẻ thú vị!</div>
+          </div>
+        </div>
+
+        <div class="chat-message">
+          <div class="message-avatar">G</div>
+          <div class="message-content">
+            <div class="message-header">
+              <span class="message-username">GameMaster</span>
+              <span class="message-time">6 phút trước</span>
+            </div>
+            <div class="message-text">Skill của bạn ngon quá! 👏👏👏</div>
+          </div>
+        </div>
+
+        <div class="chat-message">
+          <div class="message-avatar">N</div>
+          <div class="message-content">
+            <div class="message-header">
+              <span class="message-username">NguyenVanA</span>
+              <span class="message-time">8 phút trước</span>
+            </div>
+            <div class="message-text">First! Chào mọi người nhé 🙋‍♂️</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input">
+        <div class="input-container">
+          <button class="emoji-btn">😊</button>
+          <input type="text" placeholder="Nhập tin nhắn..." id="messageInput">
+          <button class="send-btn" id="sendBtn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simulate real-time data updates
+    let viewerCount = 12847;
+    let likesCount = 1256;
+    let commentsCount = 892;
+
+    // Update viewer count periodically
+    setInterval(() => {
+      viewerCount += Math.floor(Math.random() * 20) - 10;
+      if (viewerCount < 10000) viewerCount = 10000;
+      document.getElementById('viewerCount').textContent = viewerCount.toLocaleString();
+      document.getElementById('liveViews').textContent = viewerCount.toLocaleString() + ' đang xem';
+    }, 3000);
+
+    // Chat functionality
+    const chatMessages = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    const sampleMessages = [
+      { user: 'StreamFan99', message: 'Ủa sao lag thế bạn? 🤔', avatar: 'S' },
+      { user: 'ProGamer2024', message: 'Boss này khó lắm đó!', avatar: 'P' },
+      { user: 'ChatMaster', message: 'Mình đã follow rồi nhé! 💖', avatar: 'C' },
+      { user: 'GameLover', message: 'Lần sau stream game gì nữa vậy?', avatar: 'G' },
+      { user: 'TechReview', message: 'Setup của bạn ngon quá!', avatar: 'T' },
+      { user: 'NewViewer', message: 'Mới vào, game gì thế này? 😅', avatar: 'N' }
+    ];
+
+    // Simulate incoming messages
+    setInterval(() => {
+      if (Math.random() > 0.3) {
+        const randomMsg = sampleMessages[Math.floor(Math.random() * sampleMessages.length)];
+        addChatMessage(randomMsg.user, randomMsg.message, randomMsg.avatar);
+        commentsCount++;
+        document.getElementById('commentsCount').textContent = commentsCount + ' bình luận';
+      }
+    }, 5000);
+
+    function addChatMessage(username, message, avatar, isSuper = false) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `chat-message ${isSuper ? 'super-chat' : ''}`;
+      
+      const now = new Date();
+      const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
+                        now.getMinutes().toString().padStart(2, '0');
+
+      messageDiv.innerHTML = `
+        <div class="message-avatar">${avatar}</div>
+        <div class="message-content">
+          <div class="message-header">
+            <span class="message-username">${username}</span>
+            <span class="message-time">${timeString}</span>
+          </div>
+          <div class="message-text">${message}</div>
+        </div>
+      `;
+
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      // Remove old messages to prevent memory issues
+      if (chatMessages.children.length > 50) {
+        chatMessages.removeChild(chatMessages.firstChild);
+      }
+    }
+
+    // Send message functionality
+    function sendMessage() {
+      const message = messageInput.value.trim();
+      if (message) {
+        addChatMessage('Bạn', message, 'B');
+        messageInput.value = '';
+        commentsCount++;
+        document.getElementById('commentsCount').textContent = commentsCount + ' bình luận';
+      }
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    // Like/Dislike functionality
+    const likeBtn = document.getElementById('likeBtn');
+    const dislikeBtn = document.getElementById('dislikeBtn');
+    let isLiked = false;
+    let isDisliked = false;
+
+    likeBtn.addEventListener('click', () => {
+      if (!isLiked) {
+        likesCount++;
+        likeBtn.classList.add('liked');
+        isLiked = true;
+        if (isDisliked) {
+          dislikeBtn.classList.remove('liked');
+          isDisliked = false;
+        }
+      } else {
+        likesCount--;
+        likeBtn.classList.remove('liked');
+        isLiked = false;
+      }
+      document.getElementById('likesCount').textContent = likesCount.toLocaleString();
+    });
+
+    dislikeBtn.addEventListener('click', () => {
+      if (!isDisliked) {
+        dislikeBtn.classList.add('liked');
+        isDisliked = true;
+        if (isLiked) {
+          likesCount--;
+          likeBtn.classList.remove('liked');
+          isLiked = false;
+          document.getElementById('likesCount').textContent = likesCount.toLocaleString();
+        }
+      } else {
+        dislikeBtn.classList.remove('liked');
+        isDisliked = false;
+      }
+    });
+
+    // Auto-scroll chat to bottom
+    setInterval(() => {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 1000);
+  </script>
+</body>
+</html>
