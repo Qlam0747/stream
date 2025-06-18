@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlueV - Lịch sử xem</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4A90E2;
+            border-bottom: 1px solid rgba(74, 144, 226, 0.2);
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 28px;
+        }
+
+        .menu {
+            padding: 20px 0;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #666;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+
+        .menu a:hover, .menu a.active {
+            background: linear-gradient(90deg, rgba(74, 144, 226, 0.1) 0%, transparent 100%);
+            color: #4A90E2;
+            border-left-color: #4A90E2;
+            transform: translateX(5px);
+        }
+
+        .menu a i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #4A90E2;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(74, 144, 226, 0.1);
+        }
+
+        .search-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #4A90E2;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .search-button {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #4A90E2;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+        }
+
+        .search-button:hover {
+            background: #357ABD;
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+        }
+
+        .add-button {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 50%;
+            background: #4A90E2;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+        }
+
+        .add-button:hover {
+            background: #357ABD;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .sign-in-button, .sign-up-button {
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .sign-in-button {
+            color: #4A90E2;
+            border: 2px solid #4A90E2;
+        }
+
+        .sign-up-button {
+            background: #4A90E2;
+            color: white;
+            border: 2px solid #4A90E2;
+        }
+
+        .sign-in-button:hover {
+            background: #4A90E2;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .sign-up-button:hover {
+            background: #357ABD;
+            border-color: #357ABD;
+            transform: translateY(-2px);
+        }
+
+        /* History Section */
+        .history-section {
+            padding: 0;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #4A90E2;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .history-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-dropdown {
+            position: relative;
+        }
+
+        .filter-btn {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: #357ABD;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+        }
+
+        .clear-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Filter Menu */
+        .filter-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            min-width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .filter-menu.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .filter-option:hover {
+            color: #4A90E2;
+        }
+
+        .filter-option input {
+            margin-right: 10px;
+        }
+
+        /* Video History List */
+        .video-history {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .history-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: #4A90E2;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .history-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .history-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            width: 200px;
+            height: 120px;
+            border-radius: 10px;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .watch-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: #ff6b6b;
+            transition: width 0.3s ease;
+        }
+
+        .video-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .video-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #333;
+            line-height: 1.4;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .video-title:hover {
+            color: #4A90E2;
+        }
+
+        .video-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .channel-name {
+            font-weight: 600;
+            color: #4A90E2;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .channel-name:hover {
+            color: #357ABD;
+        }
+
+        .video-stats {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .watch-time {
+            background: rgba(74, 144, 226, 0.1);
+            color: #4A90E2;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .history-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            background: rgba(74, 144, 226, 0.1);
+            color: #4A90E2;
+            transform: scale(1.1);
+        }
+
+        .remove-btn:hover {
+            background: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b;
+        }
+
+        /* Date Dividers */
+        .date-divider {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 25px;
+            margin: 20px 0 10px 0;
+            text-align: center;
+            font-weight: 600;
+            color: #4A90E2;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin: 40px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-icon {
+            font-size: 80px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .empty-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .empty-message {
+            color: #999;
+            font-size: 16px;
+        }
+
+        /* Overlay for mobile menu */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 150;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                top: 0;
+                height: 100vh;
+                z-index: 200;
+                transition: left 0.3s ease;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .main-content {
+                width: 100%;
+                padding: 15px;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .top-bar {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .auth-buttons {
+                order: -1;
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .history-item {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .video-thumbnail {
+                width: 100%;
+                height: 180px;
+            }
+
+            .history-header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: stretch;
+            }
+
+            .history-controls {
+                justify-content: center;
+            }
+
+            .history-section {
+                padding: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 12px 15px;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(74, 144, 226, 0.3);
+            border-top: 4px solid #4A90E2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <i class="fas fa-tv"></i>
+                <span>BlueV</span>
+            </div>
+            <nav class="menu">
+                <a href="main.html">
+                    <i class="fas fa-home"></i>
+                    <span>Trang chủ</span>
+                </a>
+                <a href="channel.html">
+                    <i class="fas fa-play"></i>
+                    <span>Kênh đăng ký</span>
+                </a>
+                <a href="stream.html">
+                    <i class="fas fa-video"></i>
+                    <span>Livestream</span>
+                </a>
+                <a href="history.html" class="active">
+                    <i class="fas fa-history"></i>
+                    <span>Video đã xem</span>
+                </a>
+                <a href="#">
+                    <i class="fas fa-list"></i>
+                    <span>Danh sách phát</span>
+                </a>
+                <a href="#">
+                    <i class="fas fa-clock"></i>
+                    <span>Xem sau</span>
+                </a>
+                <a href="#">
+                    <i class="fas fa-thumbs-up"></i>
+                    <span>Video đã thích</span>
+                </a>
+                <a href="#">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Thịnh hành</span>
+                </a>
+                <a href="#">
+                    <i class="fas fa-cog"></i>
+                    <span>Cài đặt</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Overlay for mobile -->
+        <div class="overlay" id="overlay"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="top-bar">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="search-container">
+                        <input type="text" class="search-bar" placeholder="Tìm kiếm video, kênh...">
+                        <button class="search-button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <button class="add-button" title="Tạo nội dung">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="auth-buttons">
+                        <a href="signin.html" class="sign-in-button">Đăng nhập</a>
+                        <a href="signup.html" class="sign-up-button">Đăng ký</a>
+                        <button class="profile-button" style="display: none;">
+                            <i class="fas fa-user-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="history-section">
+                <div class="history-header">
+                    <h1 class="history-title">
+                        <i class="fas fa-history"></i>
+                        Lịch sử xem
+                    </h1>
+                    <div class="history-controls">
+                        <div class="filter-dropdown">
+                            <button class="filter-btn" onclick="toggleFilter()">
+                                <i class="fas fa-filter"></i>
+                                Bộ lọc
+                            </button>
+                            <div class="filter-menu" id="filterMenu">
+                                <div class="filter-option">
+                                    <input type="radio" name="timeFilter" value="today" id="today">
+                                    <label for="today">Hôm nay</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="radio" name="timeFilter" value="week" id="week">
+                                    <label for="week">Tuần này</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="radio" name="timeFilter" value="month" id="month">
+                                    <label for="month">Tháng này</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="radio" name="timeFilter" value="all" id="all" checked>
+                                    <label for="all">Tất cả</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="clear-btn" onclick="clearHistory()">
+                            <i class="fas fa-trash"></i>
+                            Xóa lịch sử
+                        </button>
+                    </div>
+                </div>
+
+                <div class="video-history" id="videoHistory">
+                    <div class="date-divider">Hôm nay</div>
+                    
+                    <div class="history-item">
+                        <div class="video-thumbnail">
+                            <i class="fas fa-play"></i>
+                            <div class="video-duration">12:34</div>
+                            <div class="watch-progress" style="width: 65%;"></div>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">Hướng dẫn lập trình JavaScript từ cơ bản đến nâng cao</h3>
+                            <div class="video-meta">
+                                <div class="channel-name">Kênh Lập Trình</div>
+                                <div class="video-stats">
+                                    <span>1.2M lượt xem</span>
+                                    <span>•</span>
+                                    <span>2 giờ trước</span>
+                                    <span class="watch-time">Đã xem 65%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="history-actions">
+                            <span style="font-size: 12px; color: #999;">14:30</span>
+                            <button class="action-btn" title="Xem tiếp">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="action-btn" title="Thêm vào danh sách xem sau">
+                                <i class="fas fa-clock"></i>
+                            </button>
+                            <button class="action-btn remove-btn" title="Xóa khỏi lịch sử">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="history-item">
+                        <div class="video-thumbnail">
+                            <i class="fas fa-music"></i>
+                            <div class="video-duration">4:21</div>
+                            <div class="watch-progress" style="width: 100%;"></div>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">Top 10 bài hát Vpop hay nhất 2024</h3>
+                            <div class="video-meta">
+                                <div class="channel-name">Âm Nhạc Trẻ</div>
+                                <div class="video-stats">
+                                    <span>850K lượt xem</span>
+                                    <span>•</span>
+                                    <span>4 giờ trước</span>
+                                    <span class="watch-time">Đã xem hết</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="history-actions">
+                            <span style="font-size: 12px; color: #999;">11:15</span>
+                            <button class="action-btn" title="Xem lại">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            <button class="action-btn" title="Thêm vào danh sách phát">
+                                <i class="fas fa-list"></i>
+                            </button>
+                            <button class="action-btn remove-btn" title="Xóa khỏi lịch sử">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="date-divider">Hôm qua</div>
+
+                    <div class="history-item">
+                        <div class="video-thumbnail">
+                            <i class="fas fa-gamepad"></i>
+                            <div class="video-duration">25:48</div>
+                            <div class="watch-progress" style="width: 40%;"></div>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">Gameplay PUBG Mobile: Chiến thắng Chicken Dinner đầu tiên</h3>
+                            <div class="video-meta">
+                                <div class="channel-name">Gaming Zone</div>
+                                <div class="video-stats">
+                                    <span>2.1M lượt xem</span>
+                                    <span>•</span>
+                                    <span>1 ngày trước</span>
+                                    <span class="watch-time">Đã xem 40%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="history-actions">
+                            <span style="font-size: 12px; color: #999;">20:30</span>
+                            <button class="action-btn" title="Xem tiếp">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="action-btn" title="Thêm vào xem sau">
+                                <i class="fas fa-clock"></i>
+                            </button>
+                            <button class="action-btn remove-btn" title="Xóa khỏi lịch sử">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="history-item">
+                        <div class="video-thumbnail">
+                            <i class="fas fa-utensils"></i>
+                            <div class="video-duration">15:22</div>
+                            <div class="watch-progress" style="width: 80%;"></div>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">Cách nấu phở bò ngon như hàng quán tại nhà</h3>
+                            <div class="video-meta">
+                                <div class="channel-name">Ẩm Thực Việt</div>
+                                <div class="video-stats">
+                                    <span>1.8M lượt xem</span>
+                                    <span>•</span>
+                                    <span>1 ngày trước</span>
+                                    <span class="watch-time">Đã xem 80%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="history-actions">
+                            <span style="font-size: 12px; color: #999;">19:45</span>
+                            <button class="action-btn" title="Xem tiếp">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="action-btn" title="Lưu công thức">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
+                            <button class="action-btn remove-btn" title="Xóa khỏi lịch sử">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="date-divider">Tuần trước</div>
+
+                    <div class="history-item">
+                        <div class="video-thumbnail">
+                            <i class="fas fa-film"></i>
+                            <div class="video-duration">45:30</div>
+                            <div class="watch-progress" style="width: 90%;"></div>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">Review phim mới: Avatar 3 có gì đặc biệt?</h3>
+                            <div class="video-meta">
+                                <div class="channel-name">Kênh Phim Ảnh</div>
+                                <div class="video-stats">
+                                    <span>3.5M lượt xem</span>
+                                    <span>•</span>
+                                    <span>5 ngày trước</span>
+                                    <span class="watch-time">Đã xem 90%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="history-actions">
+                            <span style="font-size: 12px; color: #999;">22:15</span>
+                            <button class="action-btn" title="Xem tiếp">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="action-btn" title="Chia sẻ">
+                                <i class="fas fa-share"></i>
+                            </button>
+                            <button class="action-btn remove-btn" title="Xóa khỏi lịch sử">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Toggle filter menu
+        function toggleFilter() {
+            const filterMenu = document.getElementById('filterMenu');
+            filterMenu.classList.toggle('active');
+        }
+
+        // Close filter menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const filterDropdown = document.querySelector('.filter-dropdown');
+            const filterMenu = document.getElementById('filterMenu');
+            
+            if (!filterDropdown.contains(e.target)) {
+                filterMenu.classList.remove('active');
+            }
+        });
+
+        // Clear history confirmation
+        function clearHistory() {
+            if (confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử xem? Hành động này không thể hoàn tác.')) {
+                const videoHistory = document.getElementById('videoHistory');
+                videoHistory.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <div class="empty-title">Lịch sử trống</div>
+                        <div class="empty-message">Bạn chưa xem video nào hoặc đã xóa toàn bộ lịch sử</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Remove individual history item
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.remove-btn')) {
+                const historyItem = e.target.closest('.history-item');
+                if (confirm('Xóa video này khỏi lịch sử?')) {
+                    historyItem.style.animation = 'fadeOut 0.3s ease forwards';
+                    setTimeout(() => {
+                        historyItem.remove();
+                        checkEmptyState();
+                    }, 300);
+                }
+            }
+        });
+
+        // Check if history is empty
+        function checkEmptyState() {
+            const historyItems = document.querySelectorAll('.history-item');
+            const videoHistory = document.getElementById('videoHistory');
+            
+            if (historyItems.length === 0) {
+                videoHistory.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <div class="empty-title">Lịch sử trống</div>
+                        <div class="empty-message">Bạn chưa xem video nào hoặc đã xóa toàn bộ lịch sử</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Search functionality
+        const searchBar = document.querySelector('.search-bar');
+        searchBar.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const historyItems = document.querySelectorAll('.history-item');
+            
+            historyItems.forEach(item => {
+                const title = item.querySelector('.video-title').textContent.toLowerCase();
+                const channel = item.querySelector('.channel-name').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || channel.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Filter functionality
+        document.querySelectorAll('input[name="timeFilter"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const filterValue = this.value;
+                const historyItems = document.querySelectorAll('.history-item');
+                
+                // Simulate filtering based on time
+                historyItems.forEach(item => {
+                    item.style.display = 'flex';
+                });
+                
+                // Add loading animation
+                const videoHistory = document.getElementById('videoHistory');
+                videoHistory.style.opacity = '0.7';
+                
+                setTimeout(() => {
+                    videoHistory.style.opacity = '1';
+                }, 300);
+            });
+        });
+
+        // Add click handlers for video titles
+        document.querySelectorAll('.video-title').forEach(title => {
+            title.addEventListener('click', function() {
+                // Navigate to video page
+                window.location.href = 'playvideo.html';
+            });
+        });
+
+        // Add click handlers for channel names
+        document.querySelectorAll('.channel-name').forEach(channel => {
+            channel.addEventListener('click', function() {
+                // Navigate to channel page
+                window.location.href = 'channel.html';
+            });
+        });
+
+        // Add click handlers for play buttons
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            if (btn.querySelector('.fa-play') || btn.querySelector('.fa-redo')) {
+                btn.addEventListener('click', function() {
+                    // Navigate to video page
+                    window.location.href = 'playvideo.html';
+                });
+            }
+        });
+
+        // Add CSS animation for fadeOut
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                from { opacity: 1; transform: translateX(0); }
+                to { opacity: 0; transform: translateX(-100%); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Add button functionality
+        document.querySelector('.add-button').addEventListener('click', function() {
+            // Create dropdown menu or redirect to create content page
+            const menu = document.createElement('div');
+            menu.style.cssText = `
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+                padding: 10px 0;
+                min-width: 200px;
+                z-index: 1000;
+            `;
+            
+            menu.innerHTML = `
+                <a href="stream.html" style="display: flex; align-items: center; padding: 12px 20px; text-decoration: none; color: #333; transition: background 0.3s;">
+                    <i class="fas fa-video" style="margin-right: 10px; color: #4A90E2;"></i>
+                    Bắt đầu livestream
+                </a>
+                <a href="#" style="display: flex; align-items: center; padding: 12px 20px; text-decoration: none; color: #333; transition: background 0.3s;">
+                    <i class="fas fa-upload" style="margin-right: 10px; color: #4A90E2;"></i>
+                    Tải video lên
+                </a>
+            `;
+            
+            // Position relative to button
+            this.style.position = 'relative';
+            this.appendChild(menu);
+            
+            // Remove menu after delay
+            setTimeout(() => {
+                if (menu.parentNode) {
+                    menu.parentNode.removeChild(menu);
+                }
+            }, 5000);
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        menuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+
+        overlay.addEventListener('click', function() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+
+        // Close menu when clicking on menu items (mobile)
+        document.querySelectorAll('.menu a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+                
+                // Update active state
+                document.querySelectorAll('.menu a').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
