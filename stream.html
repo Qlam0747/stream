@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlueV - Livestream</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4A90E2;
+            border-bottom: 1px solid rgba(74, 144, 226, 0.2);
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 28px;
+        }
+
+        .menu {
+            padding: 20px 0;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #666;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .menu a:hover {
+            background: linear-gradient(90deg, rgba(74, 144, 226, 0.1) 0%, transparent 100%);
+            color: #4A90E2;
+            border-left-color: #4A90E2;
+            transform: translateX(5px);
+        }
+
+        .menu a i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-bar {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #4A90E2;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .search-button, .add-button {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 50%;
+            background: #4A90E2;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+        }
+
+        .search-button:hover, .add-button:hover {
+            background: #357ABD;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .sign-in-button, .sign-up-button {
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .sign-in-button {
+            color: #4A90E2;
+            border: 2px solid #4A90E2;
+        }
+
+        .sign-up-button {
+            background: #4A90E2;
+            color: white;
+            border: 2px solid #4A90E2;
+        }
+
+        .sign-in-button:hover {
+            background: #4A90E2;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .sign-up-button:hover {
+            background: #357ABD;
+            border-color: #357ABD;
+            transform: translateY(-2px);
+        }
+
+        /* Stream Section */
+        .stream-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .stream-title {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .stream-title i {
+            color: #4A90E2;
+            font-size: 32px;
+        }
+
+        .stream-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .stream-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .stream-input, .stream-textarea, .stream-select {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .stream-input:focus, .stream-textarea:focus, .stream-select:focus {
+            outline: none;
+            border-color: #4A90E2;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .stream-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .stream-button {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #4A90E2, #357ABD);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
+            margin-top: 10px;
+        }
+
+        .stream-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(74, 144, 226, 0.4);
+            background: linear-gradient(45deg, #357ABD, #2E6DA4);
+        }
+
+        .stream-button:active {
+            transform: translateY(-1px);
+        }
+
+        .stream-preview-col {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .preview-box {
+            aspect-ratio: 16/9;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border: 2px dashed #4A90E2;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #4A90E2;
+            font-size: 18px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(74, 144, 226, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .preview-box i {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .preview-box:hover {
+            border-color: #357ABD;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            transform: scale(1.02);
+        }
+
+        .stream-info {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .stream-info p {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .stream-info code {
+            background: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            border: 1px solid #ddd;
+            flex: 1;
+        }
+
+        .copy-button {
+            padding: 6px 12px;
+            background: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-button:hover {
+            background: #357ABD;
+            transform: scale(1.05);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .stream-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            
+            .top-bar {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .auth-buttons {
+                order: -1;
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+
+        /* Animation for form elements */
+        .form-group {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+        .stream-button { animation-delay: 0.5s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Status indicator */
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-tv"></i>
+                <span>BlueV</span>
+            </div>
+            <nav class="menu">
+                <a href="main.html"><i class="fas fa-home"></i> Trang chủ</a>
+                <a href="channel.html"><i class="fas fa-play"></i> Kênh đăng ký</a>
+                <a href="#"><i class="fas fa-history"></i> Video đã xem</a>
+                <a href="#"><i class="fas fa-list"></i> Danh sách phát</a>
+                <a href="#"><i class="fas fa-clock"></i> Xem sau</a>
+                <a href="#"><i class="fas fa-thumbs-up"></i> Video đã thích</a>
+                <a href="#"><i class="fas fa-chart-line"></i> Thịnh hành</a>
+                <a href="#"><i class="fas fa-cog"></i> Cài đặt</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="top-bar">
+                    <input type="text" class="search-bar" placeholder="Tìm kiếm video, kênh...">
+                    <button class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="add-button">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="auth-buttons">
+                        <a href="signin.html" class="sign-in-button">Đăng nhập</a>
+                        <a href="signup.html" class="sign-up-button">Đăng ký</a>
+                        <button class="profile-button" style="display: none;">
+                            <i class="fas fa-user-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <section class="stream-section">
+                <div class="stream-container">
+                    <h2 class="stream-title">
+                        <i class="fas fa-video"></i> 
+                        Bắt đầu Livestream
+                    </h2>
+                    <div class="stream-grid">
+                        <!-- Left: Form -->
+                        <form class="stream-form" id="streamForm">
+                            <div class="form-group">
+                                <label><i class="fas fa-heading"></i> Tiêu đề livestream</label>
+                                <input type="text" class="stream-input" placeholder="Nhập tiêu đề hấp dẫn cho livestream..." required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-align-left"></i> Mô tả</label>
+                                <textarea class="stream-textarea" rows="4" placeholder="Mô tả chi tiết về nội dung livestream của bạn..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-camera"></i> Thiết bị Camera</label>
+                                <select class="stream-select" id="cameraSelect">
+                                    <option value="">Đang tải danh sách camera...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-microphone"></i> Thiết bị Micro</label>
+                                <select class="stream-select" id="micSelect">
+                                    <option value="">Đang tải danh sách microphone...</option>
+                                </select>
+                            </div>
+                            <button class="stream-button" type="submit">
+                                <i class="fas fa-broadcast-tower"></i> 
+                                BẮT ĐẦU LIVESTREAM
+                            </button>
+                        </form>
+                        
+                        <!-- Right: Preview and Info -->
+                        <div class="stream-preview-col">
+                            <div class="preview-box" id="previewBox">
+                                <i class="fas fa-video"></i>
+                                <span>Xem trước Camera</span>
+                            </div>
+                            <div class="stream-info">
+                                <p>
+                                    <i class="fas fa-link"></i>
+                                    <strong>RTMP URL:</strong> 
+                                    <code id="rtmpUrl">rtmp://stream.bluev.com/live</code>
+                                    <button class="copy-button" onclick="copyToClipboard('rtmpUrl')">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </button>
+                                </p>
+                                <p>
+                                    <i class="fas fa-key"></i>
+                                    <strong>Stream Key:</strong> 
+                                    <code id="streamKey">bv_abc123xyz789</code>
+                                    <button class="copy-button" onclick="copyToClipboard('streamKey')">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Status Indicator -->
+    <div class="status-indicator" id="statusIndicator">
+        <i class="fas fa-check-circle"></i> Đã sao chép!
+    </div>
+
+    <script>
+        // Copy to clipboard function
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showStatus('Đã sao chép: ' + text);
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showStatus('Đã sao chép: ' + text);
+            });
+        }
+
+        // Show status message
+        function showStatus(message) {
+            const indicator = document.getElementById('statusIndicator');
+            indicator.innerHTML = '<i class="fas fa-check-circle"></i> ' + message;
+            indicator.style.display = 'block';
+            
+            setTimeout(() => {
+                indicator.style.display = 'none';
+            }, 3000);
+        }
+
+        // Load camera and microphone devices
+        async function loadDevices() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const cameraSelect = document.getElementById('cameraSelect');
+                const micSelect = document.getElementById('micSelect');
+                
+                // Clear loading options
+                cameraSelect.innerHTML = '';
+                micSelect.innerHTML = '';
+                
+                // Add default options
+                cameraSelect.innerHTML = '<option value="">Chọn camera</option>';
+                micSelect.innerHTML = '<option value="">Chọn microphone</option>';
+                
+                devices.forEach(device => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    option.textContent = device.label || `${device.kind} ${device.deviceId.substr(0, 8)}`;
+                    
+                    if (device.kind === 'videoinput') {
+                        cameraSelect.appendChild(option);
+                    } else if (device.kind === 'audioinput') {
+                        micSelect.appendChild(option);
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading devices:', error);
+                document.getElementById('cameraSelect').innerHTML = '<option value="">Webcam mặc định</option>';
+                document.getElementById('micSelect').innerHTML = '<option value="">Microphone mặc định</option>';
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('streamForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Simulate starting stream
+            const button = this.querySelector('.stream-button');
+            const originalText = button.innerHTML;
+            
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang kết nối...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                button.innerHTML = '<i class="fas fa-stop"></i> DỪNG LIVESTREAM';
+                button.disabled = false;
+                button.style.background = 'linear-gradient(45deg, #f44336, #d32f2f)';
+                showStatus('Livestream đã bắt đầu thành công!');
+            }, 2000);
+        });
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDevices();
+            
+            // Request camera permissions for preview
+            navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                .then(stream => {
+                    // You can add video preview here if needed
+                    console.log('Camera and microphone access granted');
+                })
+                .catch(error => {
+                    console.log('Camera/microphone access denied or not available');
+                });
+        });
+
+        // Add smooth scrolling and other interactive effects
+        document.querySelectorAll('.menu a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Remove active class from all links
+                document.querySelectorAll('.menu a').forEach(l => l.classList.remove('active'));
+                // Add active class to clicked link
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

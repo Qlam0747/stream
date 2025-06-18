@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlueV - Kênh đăng ký</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4A90E2;
+            border-bottom: 1px solid rgba(74, 144, 226, 0.2);
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 28px;
+        }
+
+        .menu {
+            padding: 20px 0;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #666;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+
+        .menu a:hover, .menu a.active {
+            background: linear-gradient(90deg, rgba(74, 144, 226, 0.1) 0%, transparent 100%);
+            color: #4A90E2;
+            border-left-color: #4A90E2;
+            transform: translateX(5px);
+        }
+
+        .menu a i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #4A90E2;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(74, 144, 226, 0.1);
+        }
+
+        .search-bar {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #4A90E2;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .search-button, .add-button {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 50%;
+            background: #4A90E2;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+        }
+
+        .search-button:hover, .add-button:hover {
+            background: #357ABD;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .sign-in-button, .sign-up-button {
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .sign-in-button {
+            color: #4A90E2;
+            border: 2px solid #4A90E2;
+        }
+
+        .sign-up-button {
+            background: #4A90E2;
+            color: white;
+            border: 2px solid #4A90E2;
+        }
+
+        .sign-in-button:hover {
+            background: #4A90E2;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .sign-up-button:hover {
+            background: #357ABD;
+            border-color: #357ABD;
+            transform: translateY(-2px);
+        }
+
+        /* Channel Section */
+        .channel-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: #4A90E2;
+            font-size: 28px;
+        }
+
+        .channel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            padding: 10px;
+        }
+
+        .channel-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .channel-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .channel-card:nth-child(odd) {
+            animation-delay: 0.1s;
+        }
+
+        .channel-card:nth-child(even) {
+            animation-delay: 0.2s;
+        }
+
+        .channel-avatar {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .channel-avatar i {
+            font-size: 60px;
+            color: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .channel-card:hover .channel-avatar i {
+            transform: scale(1.1);
+            color: white;
+        }
+
+        .channel-info {
+            padding: 15px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .channel-info > i {
+            font-size: 36px;
+            color: #4A90E2;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .channel-meta {
+            flex: 1;
+        }
+
+        .channel-meta h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .channel-meta p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .channel-meta p:first-of-type {
+            color: #4A90E2;
+            font-weight: 500;
+        }
+
+        .subscribe-btn {
+            background: linear-gradient(45deg, #4A90E2, #357ABD);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+            margin-top: 8px;
+        }
+
+        .subscribe-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+            background: linear-gradient(45deg, #357ABD, #2E6DA4);
+        }
+
+        .subscribe-btn.subscribed {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                position: relative;
+            }
+            
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                top: 0;
+                height: 100vh;
+                z-index: 200;
+                transition: left 0.3s ease;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .main-content {
+                width: 100%;
+                padding: 15px;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .top-bar {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .channel-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 20px;
+            }
+            
+            .auth-buttons {
+                order: -1;
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .channel-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .main-content {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 12px 15px;
+            }
+        }
+
+        /* Animation for channel cards */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Overlay for mobile menu */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 150;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <i class="fas fa-tv"></i>
+                <span>BlueV</span>
+            </div>
+            <nav class="menu">
+                <a href="main.html"><i class="fas fa-home"></i> Trang chủ</a>
+                <a href="channel.html" class="active"><i class="fas fa-play"></i> Kênh đăng ký</a>
+                <a href="stream.html"><i class="fas fa-video"></i> Livestream</a>
+                <a href="#"><i class="fas fa-history"></i> Video đã xem</a>
+                <a href="#"><i class="fas fa-list"></i> Danh sách phát</a>
+                <a href="#"><i class="fas fa-clock"></i> Xem sau</a>
+                <a href="#"><i class="fas fa-thumbs-up"></i> Video đã thích</a>
+                <a href="#"><i class="fas fa-chart-line"></i> Thịnh hành</a>
+                <a href="#"><i class="fas fa-cog"></i> Cài đặt</a>
+            </nav>
+        </aside>
+
+        <!-- Overlay for mobile -->
+        <div class="overlay" id="overlay"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="top-bar">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <input type="text" class="search-bar" placeholder="Tìm kiếm video, kênh...">
+                    <button class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="add-button" title="Tạo nội dung">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="auth-buttons">
+                        <a href="signin.html" class="sign-in-button">Đăng nhập</a>
+                        <a href="signup.html" class="sign-up-button">Đăng ký</a>
+                        <button class="profile-button" style="display: none;">
+                            <i class="fas fa-user-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Channel Section -->
+            <section class="channel-section">
+                <h2 class="section-title">
+                    <i class="fas fa-play-circle"></i>
+                    Kênh đăng ký
+                </h2>
+                <div class="channel-grid">
+                    <div class="channel-card">
+                        <div class="channel-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="channel-info">
+                            <i class="fas fa-user-circle"></i>
+                            <div class="channel-meta">
+                                <h3>Kênh Giải Trí</h3>
+                                <p>12.5K người đăng ký</p>
+                                <p>1.2K video</p>
+                                <button class="subscribe-btn">Đăng ký</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="channel-card">
+                        <div class="channel-avatar">
+                            <i class="fas fa-music"></i>
+                        </div>
+                        <div class="channel-info">
+                            <i class="fas fa-music"></i>
+                            <div class="channel-meta">
+                                <h3>Âm Nhạc Trẻ</h3>
+                                <p>8.2K người đăng ký</p>
+                                <p>856 video</p>
+                                <button class="subscribe-btn">Đăng ký</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="channel-card">
+                        <div class="channel-avatar">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <div class="channel-info">
+                            <i class="fas fa-gamepad"></i>
+                            <div class="channel-meta">
+                                <h3>Gaming Zone</h3>
+                                <p>15.7K người đăng ký</p>
+                                <p>2.1K video</p>
+                                <button class="subscribe-btn">Đăng ký</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="channel-card">
+                        <div class="channel-avatar">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <div class="channel-info">
+                            <i class="fas fa-utensils"></i>
+                            <div class="channel-meta">
+                                <h3>Ẩm Thực Việt</h3>
+                                <p>22.1K người đăng ký</p>
+                                <p>1.8K video</p>
+                                <button class="subscribe-btn">Đăng ký</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="channel-card">
+                        <div class="channel-avatar">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="channel-info">
+                            <i class="fas fa-graduation-cap"></i>
+                            <div class="channel-meta">
+                                <h3>Học Tập Online</h3>
+                                <p>18.9K người đăng ký</p>
+                                <p>3.5K video</p>
+                                <button class="subscribe-btn">Đăng ký</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="channel-card">
+                        <div class="channel-avatar">
+                            <i class="fas fa-dumbbell"></i>
+                        </div>
+                        <div class="channel-info">
+                            <i class="fas fa-dumbbell"></i>
+                            <div class="channel-meta">
+                                <h3>Thể Thao & Fitness</h3>
+                                <p>9.6K người đăng ký</p>
+                                <p>1.4K video</p>
+                                <button class="subscribe-btn">Đăng ký</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        menuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+
+        overlay.addEventListener('click', function() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+
+        // Close menu when clicking on menu items (mobile)
+        document.querySelectorAll('.menu a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+                
+                // Update active state
+                document.querySelectorAll('.menu a').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Search functionality
+        const searchBar = document.querySelector('.search-bar');
+        const searchButton = document.querySelector('.search-button');
+
+        searchButton.addEventListener('click', function() {
+            const query = searchBar.value.trim();
+            if (query) {
+                console.log('Searching for:', query);
+                // Add search logic here
+            }
+        });
+
+        searchBar.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchButton.click();
+            }
+        });
+
+        // Add button functionality
+        document.querySelector('.add-button').addEventListener('click', function() {
+            // Create dropdown menu or redirect to create content page
+            const menu = document.createElement('div');
+            menu.style.cssText = `
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+                padding: 10px 0;
+                min-width: 200px;
+                z-index: 1000;
+            `;
+            
+            menu.innerHTML = `
+                <a href="stream.html" style="display: flex; align-items: center; padding: 12px 20px; text-decoration: none; color: #333; transition: background 0.3s;">
+                    <i class="fas fa-video" style="margin-right: 10px; color: #4A90E2;"></i>
+                    Bắt đầu livestream
+                </a>
+                <a href="#" style="display: flex; align-items: center; padding: 12px 20px; text-decoration: none; color: #333; transition: background 0.3s;">
+                    <i class="fas fa-upload" style="margin-right: 10px; color: #4A90E2;"></i>
+                    Tải video lên
+                </a>
+            `;
+            
+            // Position relative to button
+            this.style.position = 'relative';
+            this.appendChild(menu);
+            
+            // Remove menu after delay
+            setTimeout(() => {
+                if (menu.parentNode) {
+                    menu.parentNode.removeChild(menu);
+                }
+            }, 5000);
+        });
+
+        // Subscribe button functionality
+        document.querySelectorAll('.subscribe-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (this.textContent === 'Đăng ký') {
+                    this.textContent = 'Đã đăng ký';
+                    this.classList.add('subscribed');
+                } else {
+                    this.textContent = 'Đăng ký';
+                    this.classList.remove('subscribed');
+                }
+            });
+        });
+
+        // Channel card click functionality
+        document.querySelectorAll('.channel-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // Navigate to channel page or show channel details
+                console.log('Channel clicked:', this.querySelector('h3').textContent);
+            });
+        });
+
+        // Smooth scrolling for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
