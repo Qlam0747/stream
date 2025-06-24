@@ -216,6 +216,25 @@
             color: #764ba2;
             text-decoration: underline;
         }
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            border: 1px solid #fcc;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            border: 1px solid #cfc;
+        }
 
         @media (max-width: 480px) {
             .signup-container {
@@ -320,45 +339,88 @@
         </div>
     </div>
 
-    <script>
-        function handleSocialLogin(provider) {
-            const button = event.target.closest('.social-btn');
-            button.classList.add('loading');
-            
-            // Simulate API call
-            setTimeout(() => {
-                button.classList.remove('loading');
-                alert(`Đăng nhập với ${provider} - Tính năng sẽ được tích hợp sau!`);
-            }, 1500);
-        }
+    <script type="module">
+    import { authService } from './auth-service.js';
 
-        function handleSubmit(event) {
-            event.preventDefault();
-            
-            const button = event.target.querySelector('.signup-btn');
-            const originalText = button.textContent;
-            
-            button.classList.add('loading');
-            button.textContent = '';
-            
-            // Simulate form submission
-            setTimeout(() => {
-                button.classList.remove('loading');
-                button.textContent = originalText;
-                alert('Đăng ký thành công!');
-            }, 2000);
+    // Hiển thị thông báo
+    window.showMessage = function(message, type = 'success') {
+        let container = document.getElementById('messageContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'messageContainer';
+            document.querySelector('.signup-container').prepend(container);
         }
+        container.innerHTML = `<div class="${type === 'success' ? 'success-message' : 'error-message'}">${message}</div>`;
+        setTimeout(() => { container.innerHTML = ''; }, 4000);
+    }
 
-        // Add smooth focus animations
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.style.transform = 'translateY(-2px)';
-            });
-            
-            input.addEventListener('blur', function() {
-                this.parentElement.style.transform = 'translateY(0)';
-            });
+    // Xử lý submit form đăng ký
+    window.handleSubmit = async function(event) {
+        event.preventDefault();
+        const button = event.target.querySelector('.signup-btn');
+        button.classList.add('loading');
+        const username = event.target.username.value;
+        const email = event.target.email.value;
+        const password = event.target.password.value;
+        const birthday = event.target.birthday.value;
+
+        try {
+            const result = await authService.registerWithEmail({ username, email, password, birthday });
+            if (result.success) {
+                showMessage('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản trước khi đăng nhập.', 'success');
+                setTimeout(() => {
+                    window.location.href = 'signin.html';
+                }, 4000);
+            } else {
+                showMessage(result.message, 'error');
+            }
+        } catch (error) {
+            showMessage('Đã xảy ra lỗi khi đăng ký. Vui lòng thử lại.', 'error');
+            console.error(error);
+        } finally {
+            button.classList.remove('loading');
+        }
+    }
+
+    // Social login
+    window.handleSocialLogin = async function(provider) {
+        const button = event.target.closest('.social-btn');
+        button.classList.add('loading');
+        let result;
+        try {
+            if (provider === 'google') {
+                result = await authService.signInWithGoogle();
+            } else if (provider === 'facebook') {
+                result = await authService.signInWithFacebook();
+            } else if (provider === 'twitter') {
+                result = await authService.signInWithTwitter();
+            }
+            if (result.success) {
+                showMessage(result.message, 'success');
+                setTimeout(() => {
+                    window.location.href = 'main.html';
+                }, 1500);
+            } else {
+                showMessage(result.message, 'error');
+            }
+        } catch (error) {
+            showMessage('Đã xảy ra lỗi khi đăng nhập MXH.', 'error');
+            console.error(error);
+        } finally {
+            button.classList.remove('loading');
+        }
+    }
+
+    // Add smooth focus animations
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'translateY(-2px)';
         });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'translateY(0)';
+        });
+    });
     </script>
 </body>
 </html>
